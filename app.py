@@ -1,47 +1,68 @@
 import streamlit as st
 from textblob import TextBlob
-from googletrans import Translator
 
-# Configuración inicial
-st.set_page_config(
-    page_title="Analizador de Sentimientos",
-    page_icon="🎭"
-)
+# Título simple
+st.title('Analizador de Sentimientos')
+st.write('Analiza el sentimiento de cualquier texto')
 
-# Función para analizar el sentimiento
-def analyze_sentiment(text):
-    blob = TextBlob(text)
-    return blob.sentiment.polarity, blob.sentiment.subjectivity
+# Área de texto para input
+text_input = st.text_area("Escribe el texto a analizar:", height=100)
 
-# Función para obtener emoji y color basado en la polaridad
-def get_sentiment_info(polarity):
-    if polarity >= 0.6:
-        return "😊", "Muy Positivo", "#28a745"
-    elif polarity >= 0.2:
-        return "🙂", "Positivo", "#7fb800"
-    elif polarity <= -0.6:
-        return "😢", "Muy Negativo", "#dc3545"
-    elif polarity <= -0.2:
-        return "🙁", "Negativo", "#ff6b6b"
+if text_input:
+    # Realizar análisis
+    blob = TextBlob(text_input)
+    polarity = blob.sentiment.polarity
+    subjectivity = blob.sentiment.subjectivity
+    
+    # Determinar el sentimiento
+    if polarity > 0:
+        sentiment = "Positivo 😊"
+    elif polarity < 0:
+        sentiment = "Negativo 😔"
     else:
-        return "😐", "Neutral", "#ffc107"
-
-# Título principal
-st.title('🎭 Analizador de Sentimientos')
-
-# Sidebar con información
-with st.sidebar:
-    st.markdown("## ℹ️ Información")
-    st.info("""
-    **Métricas de Análisis:**
+        sentiment = "Neutral 😐"
     
-    📊 **Polaridad (-1 a 1):**
-    - -1: Muy negativo
-    - 0: Neutral
-    - 1: Muy positivo
+    # Mostrar resultados
+    st.write("### Resultados del análisis:")
+    st.write(f"Sentimiento: {sentiment}")
+    st.write(f"Polaridad: {polarity:.2f}")
+    st.write(f"Subjetividad: {subjectivity:.2f}")
     
-    📈 **Subjetividad (0 a 1):**
-    <div style='text-align: center; margin-top: 30px; padding: 20px; background-color: #f8f9fa;'>
-        <p>Desarrollado con ❤️ usando Streamlit y TextBlob</p>
-    </div>
-""", unsafe_allow_html=True)
+    # Interpretación
+    st.write("\n### Interpretación:")
+    
+    # Polaridad
+    st.write("**Polaridad:**")
+    if polarity > 0.5:
+        st.write("El texto es muy positivo")
+    elif polarity > 0:
+        st.write("El texto es ligeramente positivo")
+    elif polarity < -0.5:
+        st.write("El texto es muy negativo")
+    elif polarity < 0:
+        st.write("El texto es ligeramente negativo")
+    else:
+        st.write("El texto es neutral")
+    
+    # Subjetividad
+    st.write("\n**Subjetividad:**")
+    if subjectivity > 0.7:
+        st.write("El texto es muy subjetivo (opiniones personales)")
+    elif subjetivity > 0.3:
+        st.write("El texto tiene un balance entre hechos y opiniones")
+    else:
+        st.write("El texto es muy objetivo (basado en hechos)")
+
+# Sección de corrección
+st.write("\n### Corrección de texto")
+correction_text = st.text_area("Escribe el texto a corregir:", key="correction")
+
+if correction_text:
+    blob = TextBlob(correction_text)
+    corrected = str(blob.correct())
+    
+    if corrected != correction_text:
+        st.write("Texto corregido:")
+        st.write(corrected)
+    else:
+        st.write("No se encontraron errores que corregir")
